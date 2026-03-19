@@ -740,7 +740,7 @@
         <div class="header">
           <div>
             <h1 class="title">TOEFL Writing Task 1 · Build a Sentence</h1>
-            <p class="desc">500문항 문제은행에서 랜덤 10문항이 출제됩니다. 6분 50초 안에 문장을 완성하세요.</p>
+            <p class="desc" id="headerDesc">문항 데이터를 불러오는 중입니다.</p>
           </div>
           <div class="stats">
             <div class="stat dark">
@@ -898,6 +898,7 @@
       startSub: document.getElementById('startSub'),
       startLeaderboardList: document.getElementById('startLeaderboardList'),
       startBoardStatus: document.getElementById('startBoardStatus'),
+      headerDesc: document.getElementById('headerDesc'),
       timeLeft: document.getElementById('timeLeft'),
       answeredCount: document.getElementById('answeredCount'),
       scoreNow: document.getElementById('scoreNow'),
@@ -1464,10 +1465,12 @@
         els.startBtn.disabled = false;
         els.startBtn.textContent = '시작하기';
         els.startSub.textContent = `${state.questionBank.length}문항 문제은행에서 랜덤 10문항이 출제됩니다. 시작 버튼을 누르는 순간 타이머가 시작됩니다.`;
+        els.headerDesc.textContent = `${state.questionBank.length}문항 CSV 문제은행에서 랜덤 10문항이 출제됩니다. 6분 50초 안에 문장을 완성하세요.`;
       } catch (error) {
         console.error(error);
         els.startSub.textContent = '문항 데이터를 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.';
         els.startBtn.textContent = '문항 로드 실패';
+        els.headerDesc.textContent = '문항 데이터를 불러오지 못했습니다. 네트워크 상태를 확인한 뒤 다시 시도해주세요.';
       }
 
       renderStartLeaderboard();
