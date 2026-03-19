@@ -42,9 +42,21 @@
       background: #fff;
       padding: 24px;
     }
+    .start-layout {
+      width: min(1120px, 100%);
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      align-items: stretch;
+    }
     .start-box {
       text-align: center;
-      max-width: 820px;
+      max-width: none;
+      padding: 36px 32px;
+      border-radius: 28px;
+      background: linear-gradient(145deg, #ffffff 0%, #f7f9fc 100%);
+      border: 1px solid #edf2f7;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
     }
     .start-text {
       font-size: clamp(1.4rem, 2.5vw, 2.5rem);
@@ -68,6 +80,50 @@
       border-radius: 16px;
       cursor: pointer;
       box-shadow: 0 12px 30px rgba(17,24,39,0.18);
+    }
+    .start-leaderboard {
+      padding: 22px;
+      border-radius: 28px;
+      background: linear-gradient(180deg, #111827 0%, #1f2937 100%);
+      color: #fff;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 14px;
+      min-height: 100%;
+    }
+    .start-leaderboard .small {
+      color: #cbd5e1;
+    }
+    .start-board-list {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+    .start-board-row {
+      display: grid;
+      grid-template-columns: 40px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 10px 12px;
+    }
+    .start-board-rank {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.14);
+      font-weight: 800;
+    }
+    .start-board-meta {
+      text-align: right;
+      font-size: 0.9rem;
+      font-weight: 700;
+      white-space: nowrap;
     }
 
     .exam-screen {
@@ -389,17 +445,18 @@
       min-height: 0;
     }
     .leaderboard-form {
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
       gap: 8px;
-      flex-wrap: wrap;
+      align-items: stretch;
     }
     .leaderboard-input {
-      flex: 1 1 180px;
       border: 1px solid #dbe1e8;
       border-radius: 14px;
       padding: 12px 14px;
       font: inherit;
       min-height: 44px;
+      width: 100%;
     }
     .rank-highlight {
       display: grid;
@@ -484,9 +541,14 @@
       }
       .start-screen {
         padding: 18px;
+        align-items: stretch;
+      }
+      .start-layout {
+        grid-template-columns: 1fr;
       }
       .start-box {
         max-width: 100%;
+        padding: 24px 18px;
       }
       .start-text {
         font-size: clamp(1.2rem, 6vw, 1.85rem);
@@ -591,10 +653,18 @@
         height: min(92vh, 920px);
         padding: 14px;
         border-radius: 22px;
+        overflow: auto;
       }
       .result-summary,
       .rank-highlight {
         grid-template-columns: 1fr;
+      }
+      .leaderboard-form {
+        grid-template-columns: 1fr;
+      }
+      .leaderboard-form .btn,
+      .leaderboard-input {
+        width: 100%;
       }
       .leaderboard-row {
         grid-template-columns: 44px 1fr;
@@ -630,10 +700,20 @@
 </head>
 <body>
   <section class="screen start-screen active" id="startScreen">
-    <div class="start-box">
-      <div class="start-text">옆의 광고가 신경쓰이시나요?<br>실제 시험장 옆자리 수험생의 스피킹은 더 신경쓰일 겁니다.</div>
-      <div class="start-sub">시작 버튼을 누르는 순간 타이머가 시작되고, 10문항이 랜덤으로 출제됩니다.</div>
-      <button class="start-btn" id="startBtn">시작하기</button>
+    <div class="start-layout">
+      <div class="start-box">
+        <div class="start-text">옆의 광고가 신경쓰이시나요?<br>실제 시험장 옆자리 수험생의 스피킹은 더 신경쓰일 겁니다.</div>
+        <div class="start-sub">시작 버튼을 누르는 순간 타이머가 시작되고, 10문항이 랜덤으로 출제됩니다.</div>
+        <button class="start-btn" id="startBtn">시작하기</button>
+      </div>
+      <aside class="start-leaderboard">
+        <div>
+          <div style="font-size:1.2rem;font-weight:800;">현재 순위</div>
+          <div class="small">저장소 랭킹 DB와 현재 브라우저 기록을 함께 보여줍니다.</div>
+        </div>
+        <div class="small" id="startBoardStatus">랭킹을 불러오는 중입니다.</div>
+        <div class="start-board-list" id="startLeaderboardList"></div>
+      </aside>
     </div>
   </section>
 
@@ -737,7 +817,7 @@
       <div class="result-header">
         <div>
           <h2 style="margin:0;font-size:1.8rem;">결과</h2>
-          <div class="small">이름을 등록하면 현재 점수 기준 순위를 바로 확인할 수 있습니다.</div>
+          <div class="small">이름을 등록하면 저장소 랭킹 DB와 현재 브라우저 기록 기준 순위를 확인할 수 있습니다.</div>
         </div>
         <div style="text-align:right;">
           <div class="small">Final Score</div>
@@ -789,6 +869,7 @@
     const QUIZ_SIZE = 10;
     const TOTAL_TIME = 410;
     const LEADERBOARD_KEY = 'toefl_build_sentence_leaderboard_v1';
+    const LEADERBOARD_DB_PATH = './data/leaderboard.json';
 
     const state = {
       quiz: [],
@@ -798,13 +879,16 @@
       timer: null,
       started: false,
       finished: false,
-      lastEntryId: null
+      lastEntryId: null,
+      seedLeaderboard: []
     };
 
     const els = {
       startScreen: document.getElementById('startScreen'),
       examScreen: document.getElementById('examScreen'),
       startBtn: document.getElementById('startBtn'),
+      startLeaderboardList: document.getElementById('startLeaderboardList'),
+      startBoardStatus: document.getElementById('startBoardStatus'),
       timeLeft: document.getElementById('timeLeft'),
       answeredCount: document.getElementById('answeredCount'),
       scoreNow: document.getElementById('scoreNow'),
@@ -894,6 +978,17 @@
       return state.quiz.reduce((sum, _, i) => sum + (isCorrect(i) ? 1 : 0), 0);
     }
 
+    async function loadSeedLeaderboard() {
+      try {
+        const response = await fetch(LEADERBOARD_DB_PATH, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        state.seedLeaderboard = Array.isArray(data.entries) ? data.entries : [];
+      } catch (error) {
+        state.seedLeaderboard = [];
+      }
+    }
+
     function getLeaderboard() {
       try {
         const raw = localStorage.getItem(LEADERBOARD_KEY);
@@ -912,12 +1007,16 @@
       });
     }
 
+    function allLeaderboardEntries() {
+      return sortLeaderboard([...state.seedLeaderboard, ...getLeaderboard()]);
+    }
+
     function saveLeaderboard(entries) {
       localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(sortLeaderboard(entries).slice(0, 50)));
     }
 
     function renderLeaderboard() {
-      const entries = sortLeaderboard(getLeaderboard());
+      const entries = allLeaderboardEntries();
       els.leaderboardList.innerHTML = '';
 
       if (entries.length === 0) {
@@ -938,7 +1037,7 @@
             <div class="leaderboard-name">${escapeHtml(entry.name)}</div>
             <div class="small">${new Date(entry.submittedAt).toLocaleString('ko-KR')}</div>
           </div>
-          <div class="leaderboard-score">${entry.score} / ${QUIZ_SIZE}<br><span class="small">남은 시간 ${formatTime(entry.timeLeft)}</span></div>
+          <div class="leaderboard-score">${entry.score} / ${QUIZ_SIZE}<br><span class="small">소요 ${formatTime(entry.elapsedTime ?? (TOTAL_TIME - entry.timeLeft))} · 남은 ${formatTime(entry.timeLeft)}</span></div>
         `;
         els.leaderboardList.appendChild(row);
       });
@@ -949,6 +1048,33 @@
       }
 
       els.currentRank.textContent = currentRank ? `${currentRank}위` : '-';
+    }
+
+    function renderStartLeaderboard() {
+      const entries = allLeaderboardEntries();
+      els.startLeaderboardList.innerHTML = '';
+
+      if (entries.length === 0) {
+        els.startBoardStatus.textContent = '아직 등록된 기록이 없습니다.';
+        els.startLeaderboardList.innerHTML = '<div class="small">첫 번째 기록의 주인공이 되어보세요.</div>';
+        return;
+      }
+
+      els.startBoardStatus.textContent = `상위 ${Math.min(entries.length, 5)}명의 기록을 보여주고 있습니다.`;
+
+      entries.slice(0, 5).forEach((entry, index) => {
+        const row = document.createElement('div');
+        row.className = 'start-board-row';
+        row.innerHTML = `
+          <div class="start-board-rank">${index + 1}</div>
+          <div>
+            <div class="leaderboard-name">${escapeHtml(entry.name)}</div>
+            <div class="small">${entry.score} / ${QUIZ_SIZE} · 소요 ${formatTime(entry.elapsedTime ?? (TOTAL_TIME - entry.timeLeft))}</div>
+          </div>
+          <div class="start-board-meta">남은 ${formatTime(entry.timeLeft)}</div>
+        `;
+        els.startLeaderboardList.appendChild(row);
+      });
     }
 
     function saveCurrentScore() {
@@ -969,6 +1095,7 @@
         name,
         score: score(),
         timeLeft: state.timeLeft,
+        elapsedTime: TOTAL_TIME - state.timeLeft,
         submittedAt: Date.now()
       };
 
@@ -978,6 +1105,7 @@
       state.lastEntryId = entry.id;
       els.saveStatus.textContent = '등록 완료';
       renderLeaderboard();
+      renderStartLeaderboard();
     }
 
     function updateTop() {
@@ -1189,6 +1317,7 @@
       state.started = false;
       state.finished = false;
       state.lastEntryId = null;
+      renderStartLeaderboard();
     }
 
     function retryQuiz() {
@@ -1220,6 +1349,13 @@
       });
     }
 
+    async function initializeApp() {
+      await loadSeedLeaderboard();
+      renderStartLeaderboard();
+      renderLeaderboard();
+      initAds();
+    }
+
     els.startBtn.addEventListener('click', startExam);
     els.prevBtn.addEventListener('click', () => {
       if (state.current > 0) {
@@ -1245,7 +1381,7 @@
     });
     els.retryBtn.addEventListener('click', retryQuiz);
     els.goHomeBtn.addEventListener('click', restartAll);
-    window.addEventListener('load', initAds);
+    window.addEventListener('load', initializeApp);
   </script>
 </body>
 </html>
