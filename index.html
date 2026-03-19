@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TOEFL Build a Sentence Practice</title>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6106788384349836" crossorigin="anonymous"></script>
   <style>
     :root {
       --bg: #f6f7fb;
@@ -380,7 +380,8 @@
       cursor: pointer;
     }
     .q-num.current { background: #111827; color: #fff; border-color: #111827; }
-    .q-num.answered { background: #ecfdf5; color: #166534; border-color: #86efac; }
+    .q-num.correct { background: #ecfdf5; color: #166534; border-color: #86efac; }
+    .q-num.incorrect { background: #fef2f2; color: #b91c1c; border-color: #fca5a5; }
     .overlay {
       position: fixed;
       inset: 0;
@@ -722,7 +723,7 @@
       <div class="ad-unit">
         <ins class="adsbygoogle"
              style="display:block"
-             data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+             data-ad-client="ca-pub-6106788384349836"
              data-ad-slot="1234567890"
              data-ad-format="auto"
              data-full-width-responsive="true"></ins>
@@ -793,7 +794,7 @@
       <div class="ad-unit">
         <ins class="adsbygoogle"
              style="display:block"
-             data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+             data-ad-client="ca-pub-6106788384349836"
              data-ad-slot="0987654321"
              data-ad-format="auto"
              data-full-width-responsive="true"></ins>
@@ -804,7 +805,7 @@
       <div class="ad-unit">
         <ins class="adsbygoogle"
              style="display:block"
-             data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+             data-ad-client="ca-pub-6106788384349836"
              data-ad-slot="1122334455"
              data-ad-format="auto"
              data-full-width-responsive="true"></ins>
@@ -1157,7 +1158,15 @@
         const btn = document.createElement('button');
         btn.className = 'q-num';
         if (idx === state.current) btn.classList.add('current');
-        else if (state.answers[idx].selected.length > 0) btn.classList.add('answered');
+        else {
+          const selectedCount = state.answers[idx].selected.length;
+          const requiredCount = state.quiz[idx].blank_count;
+          if (selectedCount > 0 && selectedCount === requiredCount && isCorrect(idx)) {
+            btn.classList.add('correct');
+          } else if (selectedCount > 0) {
+            btn.classList.add('incorrect');
+          }
+        }
         btn.textContent = idx + 1;
         btn.addEventListener('click', () => {
           state.current = idx;
