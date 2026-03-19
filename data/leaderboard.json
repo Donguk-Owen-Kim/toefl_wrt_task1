@@ -4,7 +4,7 @@
     {
       "id": "seed-1",
       "name": "TOEFLMaster",
-      "score": 10,
+      "score": 0,
       "timeLeft": 98,
       "elapsedTime": 312,
       "submittedAt": 1773878400000
@@ -12,7 +12,7 @@
     {
       "id": "seed-2",
       "name": "SentencePro",
-      "score": 9,
+      "score": 0,
       "timeLeft": 74,
       "elapsedTime": 336,
       "submittedAt": 1773882000000
@@ -20,7 +20,7 @@
     {
       "id": "seed-3",
       "name": "WritingAce",
-      "score": 9,
+      "score": 0,
       "timeLeft": 41,
       "elapsedTime": 369,
       "submittedAt": 1773885600000
@@ -28,7 +28,7 @@
     {
       "id": "seed-4",
       "name": "FluentFox",
-      "score": 8,
+      "score": 0,
       "timeLeft": 88,
       "elapsedTime": 322,
       "submittedAt": 1773889200000
@@ -36,7 +36,7 @@
     {
       "id": "seed-5",
       "name": "GrammarPilot",
-      "score": 8,
+      "score": 0,
       "timeLeft": 52,
       "elapsedTime": 358,
       "submittedAt": 1773892800000
