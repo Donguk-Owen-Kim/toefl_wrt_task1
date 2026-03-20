@@ -403,6 +403,11 @@
       cursor: pointer;
       color: white;
     }
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+      box-shadow: none;
+    }
     .btn-prev, .btn-next { background: var(--brand); }
     .btn-reset { background: var(--orange); }
     .btn-answer { background: var(--purple); }
@@ -1336,6 +1341,12 @@
       return state.answers[index].selected.filter(Boolean).length;
     }
 
+    function allQuestionsCompleted() {
+      return state.quiz.length === QUIZ_SIZE && state.quiz.every((question, index) =>
+        filledCount(index) === question.blank_count
+      );
+    }
+
     function score() {
       return state.quiz.reduce((sum, _, i) => sum + (isCorrect(i) ? 1 : 0), 0);
     }
@@ -1477,6 +1488,7 @@
       els.progressText.textContent = `${Math.round(progress)}%`;
       els.answeredCount.textContent = `${countAnswered()} / ${QUIZ_SIZE}`;
       els.scoreNow.textContent = `${score()} / ${QUIZ_SIZE}`;
+      els.submitBtn.disabled = !allQuestionsCompleted();
     }
 
     function getFirstEmptySlot(index = state.current) {
@@ -1713,6 +1725,7 @@
     }
 
     function finishQuiz() {
+      if (!state.finished && state.timeLeft > 0 && !allQuestionsCompleted()) return;
       if (state.finished) return;
       state.finished = true;
       clearInterval(state.timer);
