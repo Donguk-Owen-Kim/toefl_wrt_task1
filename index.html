@@ -854,7 +854,6 @@
         <div class="actions">
           <div class="btn-row">
             <button class="btn btn-reset" id="resetBtn" data-i18n="reset">Reset</button>
-            <button class="btn btn-answer" id="answerBtn" data-i18n="show_answer">Show Answer</button>
           </div>
           <div class="btn-row">
             <button class="btn btn-prev" id="prevBtn" data-i18n="previous">Previous</button>
@@ -988,7 +987,6 @@
       prevBtn: document.getElementById('prevBtn'),
       nextBtn: document.getElementById('nextBtn'),
       resetBtn: document.getElementById('resetBtn'),
-      answerBtn: document.getElementById('answerBtn'),
       submitBtn: document.getElementById('submitBtn'),
       resultOverlay: document.getElementById('resultOverlay'),
       resultList: document.getElementById('resultList'),
@@ -1637,11 +1635,7 @@
           }
         }
         btn.textContent = idx + 1;
-        btn.addEventListener('click', () => {
-          state.current = idx;
-          renderQuestion();
-          renderNav();
-        });
+        btn.addEventListener('click', () => goToQuestion(idx));
         els.questionNav.appendChild(btn);
       });
     }
@@ -1678,6 +1672,13 @@
       els.nextBtn.disabled = state.current === QUIZ_SIZE - 1;
     }
 
+    function goToQuestion(index) {
+      state.current = index;
+      state.insertionIndex = getFirstEmptySlot(index);
+      renderQuestion();
+      renderNav();
+    }
+
     function selectToken(idx, targetIndex = null) {
       placeBankToken(idx, targetIndex);
     }
@@ -1695,31 +1696,6 @@
         showedAnswer: false
       };
       setInsertionIndex(0);
-      renderQuestion();
-      renderNav();
-    }
-
-    function showAnswer() {
-      if (state.finished) return;
-      const q = state.quiz[state.current];
-      const tokens = q.correct.split(' ');
-      const used = tokens.slice(0, q.blank_count);
-      const remaining = q.choices.filter((c, i) => true);
-      state.answers[state.current] = {
-        selected: used,
-        available: q.choices.filter(x => !used.includes(x) || used.splice(used.indexOf(x),1) && false),
-        showedAnswer: true
-      };
-      // rebuild available correctly with multiset logic
-      const counts = Object.create(null);
-      q.correct.split(' ').forEach(t => counts[t] = (counts[t] || 0) + 1);
-      const avail = [];
-      q.choices.forEach(t => {
-        if (counts[t]) counts[t] -= 1;
-        else avail.push(t);
-      });
-      state.answers[state.current] = { selected: q.correct.split(' '), available: avail, showedAnswer: true };
-      setInsertionIndex(getFirstEmptySlot());
       renderQuestion();
       renderNav();
     }
@@ -1844,20 +1820,15 @@
     els.startBtn.addEventListener('click', startExam);
     els.prevBtn.addEventListener('click', () => {
       if (state.current > 0) {
-        state.current -= 1;
-        renderQuestion();
-        renderNav();
+        goToQuestion(state.current - 1);
       }
     });
     els.nextBtn.addEventListener('click', () => {
       if (state.current < QUIZ_SIZE - 1) {
-        state.current += 1;
-        renderQuestion();
-        renderNav();
+        goToQuestion(state.current + 1);
       }
     });
     els.resetBtn.addEventListener('click', resetCurrent);
-    els.answerBtn.addEventListener('click', showAnswer);
     els.submitBtn.addEventListener('click', finishQuiz);
     els.restartBtn.addEventListener('click', restartAll);
     els.saveScoreBtn.addEventListener('click', saveCurrentScore);
