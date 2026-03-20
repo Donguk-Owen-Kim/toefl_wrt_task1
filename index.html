@@ -58,6 +58,34 @@
       border: 1px solid #edf2f7;
       box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
     }
+    .topbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 18px;
+    }
+    .lang-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+    }
+    .lang-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-weight: 800;
+      padding: 8px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .lang-btn.active {
+      background: #111827;
+      color: #fff;
+    }
     .start-text {
       font-size: clamp(1.4rem, 2.5vw, 2.5rem);
       line-height: 1.45;
@@ -578,6 +606,9 @@
         max-width: 100%;
         padding: 24px 18px;
       }
+      .topbar {
+        justify-content: center;
+      }
       .start-text {
         font-size: clamp(1.2rem, 6vw, 1.85rem);
         line-height: 1.5;
@@ -730,6 +761,12 @@
   <section class="screen start-screen active" id="startScreen">
     <div class="start-layout">
       <div class="start-box">
+        <div class="topbar">
+          <div class="lang-switch" aria-label="Language selector">
+            <button class="lang-btn" type="button" data-locale-btn="ko">한국어</button>
+            <button class="lang-btn" type="button" data-locale-btn="en">English</button>
+          </div>
+        </div>
         <div class="start-text" data-i18n-html="start_text">옆의 광고가 신경쓰이시나요?<br>실제 시험장 옆자리 수험생의 스피킹은 더 신경쓰일 겁니다.</div>
       <div class="start-sub" id="startSub">시작 버튼을 누르는 순간 타이머가 시작되고, 10문항이 랜덤으로 출제됩니다.</div>
       <button class="start-btn" id="startBtn" disabled data-i18n="loading_questions">문항 불러오는 중...</button>
@@ -761,6 +798,12 @@
       <section class="card">
         <div class="header">
           <div>
+            <div class="topbar" style="margin-bottom:12px;justify-content:flex-start;">
+              <div class="lang-switch" aria-label="Language selector">
+                <button class="lang-btn" type="button" data-locale-btn="ko">한국어</button>
+                <button class="lang-btn" type="button" data-locale-btn="en">English</button>
+              </div>
+            </div>
             <h1 class="title" data-i18n="app_title">TOEFL Writing Task 1 · Build a Sentence</h1>
             <p class="desc" id="headerDesc">문항 데이터를 불러오는 중입니다.</p>
           </div>
@@ -899,6 +942,7 @@
     const QUESTIONS_CSV_PATH = './toefl_build_sentence_questions_500_dialogue_aligned.csv';
     const LEADERBOARD_KEY = 'toefl_build_sentence_leaderboard_v1';
     const LEADERBOARD_DB_PATH = './data/leaderboard.json';
+    const LOCALE_KEY = 'toefl_build_sentence_locale_v1';
     const DEFAULT_LOCALE = (navigator.language || 'en').toLowerCase().startsWith('ko') ? 'ko' : 'en';
 
     const state = {
@@ -953,6 +997,7 @@
       retryBtn: document.getElementById('retryBtn'),
       goHomeBtn: document.getElementById('goHomeBtn'),
       restartBtn: document.getElementById('restartBtn'),
+      localeButtons: Array.from(document.querySelectorAll('[data-locale-btn]'))
     };
 
     const translations = {
@@ -1086,6 +1131,9 @@
     function applyTranslations() {
       document.documentElement.lang = state.locale;
       document.title = translations[state.locale]?.app_title || translations.en.app_title;
+      els.localeButtons.forEach(button => {
+        button.classList.toggle('active', button.dataset.localeBtn === state.locale);
+      });
       document.querySelectorAll('[data-i18n]').forEach(node => {
         node.textContent = t(node.dataset.i18n);
       });
@@ -1096,6 +1144,38 @@
         node.placeholder = t(node.dataset.i18nPlaceholder);
       });
       els.startBoardStatus.textContent = t('start_board_loading');
+    }
+
+    function refreshLocaleSensitiveUi() {
+      applyTranslations();
+      if (state.questionBank.length >= QUIZ_SIZE) {
+        if (state.started) {
+          renderQuestion();
+          renderNav();
+          updateTop();
+        } else {
+          els.startBtn.disabled = false;
+          els.startBtn.textContent = t('start_button_ready');
+          els.startSub.textContent = t('csv_ready', { count: state.questionBank.length });
+          els.headerDesc.textContent = t('csv_ready_header', { count: state.questionBank.length });
+        }
+      }
+      if (state.finished) {
+        renderResults();
+        renderLeaderboard();
+        renderStartLeaderboard();
+        els.remainingTime.textContent = formatTime(state.timeLeft);
+      } else {
+        renderStartLeaderboard();
+        renderLeaderboard();
+      }
+    }
+
+    function setLocale(locale) {
+      if (!translations[locale] || state.locale === locale) return;
+      state.locale = locale;
+      localStorage.setItem(LOCALE_KEY, locale);
+      refreshLocaleSensitiveUi();
     }
 
     function shuffle(arr) {
@@ -1727,6 +1807,8 @@
     }
 
     async function initializeApp() {
+      const savedLocale = localStorage.getItem(LOCALE_KEY);
+      if (savedLocale && translations[savedLocale]) state.locale = savedLocale;
       applyTranslations();
       try {
         await Promise.all([loadQuestionBank(), loadSeedLeaderboard()]);
@@ -1771,6 +1853,9 @@
     });
     els.retryBtn.addEventListener('click', retryQuiz);
     els.goHomeBtn.addEventListener('click', restartAll);
+    els.localeButtons.forEach(button => {
+      button.addEventListener('click', () => setLocale(button.dataset.localeBtn));
+    });
     window.addEventListener('load', initializeApp);
   </script>
 </body>
